@@ -6,4 +6,4 @@ dist
 !.vscode/extensions.json
 
 
-pnpm-lock.yaml
+# pnpm-lock.yaml
