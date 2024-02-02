@@ -8,10 +8,12 @@ import VueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 
-
-
 // https://vitejs.dev/config/
 export default defineConfig({
+    esbuild:{
+        pure: ["console.log"], 
+        drop: ["debugger"], 
+    },
     plugins: [
         vue(),
         vueJsx(),

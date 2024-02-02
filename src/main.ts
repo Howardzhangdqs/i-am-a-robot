@@ -8,7 +8,6 @@ import VueLatex from "vatex";
 import { createPinia } from "pinia";
 
 import "./assets/tailwind.css";
-import "./assets/polyfill.css";
 
 const app = createApp(App);
 const pinia = createPinia();
