@@ -116,10 +116,10 @@ let realAnswer = ref("");
 
 
 
-
-
 /** 初始化 */
 const init = () => {
+    updDifficulty();
+    
     const [question, answer] = generateMath(difficulty.value);
 
     console.log(question, answer);
@@ -191,7 +191,7 @@ const progress = () => {
     }, totalTime.value);
 };
 
-watch(() => props.difficulty, () => {
+const updDifficulty = () => {
     difficulty.value = props.difficulty;
 
     if (difficulty.value == 1) {
@@ -207,7 +207,9 @@ watch(() => props.difficulty, () => {
         currentTime.value = 0;
         accuracy.value = 5;
     }
-});
+};
+
+watch(() => props.difficulty, updDifficulty);
 
 onMounted(init);
 onUnmounted(() => {

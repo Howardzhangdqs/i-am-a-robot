@@ -1,10 +1,8 @@
-
-
 export enum Colors {
     Green = "#00a000",
     Red = "#dd0000",
-    BackGround = "#dddddd",
-    Yellow = "#ffff00",
+    BackGround = "#ffffff",
+    Yellow = "#eeee00",
 }
 
 export type CTX = CanvasRenderingContext2D;

@@ -3,24 +3,21 @@
         <component :is="GameOrder[GameProgress.currentIndex].component"
             :difficulty="GameOrder[GameProgress.currentIndex].difficulty" @next="nextfn">
         </component>
-        <button v-if="isDev" @click="nextfn">Next</button>
+        <template v-if="isDev">
+            <button @click="nextfn" class="border border-gray-400 px-1 py-0 rounded text-gray-900 bg-gray-100">Next</button>
+            (This button will only be displayed in dev mode)
+        </template>
     </div>
 </template>
 
 <script setup lang="tsx">
-// import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
-import { useGameProgressStore } from "./store/GameProgress";
-
-import { GameOrder } from "./store/GameProgress";
+import { useGameProgressStore, GameOrder } from "./store/GameProgress";
 
 const GameProgress = useGameProgressStore();
 
 const isDev = import.meta.env.MODE === "development";
 
 const nextfn = () => {
-    // index.value++;
-
     GameProgress.currentIndex++;
 };
 
