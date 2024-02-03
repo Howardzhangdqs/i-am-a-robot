@@ -1,6 +1,10 @@
 ![](./public/banner.png)
 
-<div style="text-align: center"><a href="https://i-am-a-robot.netlify.app/" target="_blank">demo</a></div>
+<div align="center">
+
+[demo](https://i-am-a-robot.netlify.app/)
+
+</div>
 
 
 # I am a robot
