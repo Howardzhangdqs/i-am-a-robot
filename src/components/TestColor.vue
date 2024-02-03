@@ -5,7 +5,7 @@
             <div class="rc-imageselect-payload">
                 <div class="rc-imageselect-instructions">
                     <div class="rc-imageselect-desc-wrapper">
-                        <div class="rc-imageselect-desc-no-canonical" style="width: 352px; font-size: 16px;">
+                        <div class="rc-imageselect-desc-no-canonical" style="width: 352px; font-size: 16px;" ref="speak">
                             Select all squares that are
                             <template v-if="difficulty == 1">
                                 <div style="font-weight: 900; font-size: 28px;">
@@ -50,7 +50,8 @@
                         <div class="rc-imageselect-incorrect-response" v-if="showError">
                             Please try again.<br>
                             <span v-if="failedTimes > SkipFailedTimes">
-                                Find it too hard? <button class="border border-gray-400 px-1 py-0 rounded text-gray-900 bg-gray-100"
+                                Find it too hard? <button
+                                    class="border border-gray-400 px-1 py-0 rounded text-gray-900 bg-gray-100"
                                     @click="GameProgress.skippedTimes++; checkEnd(); $emit('next')">SKIP</button>
                             </span>
                         </div>
@@ -68,7 +69,7 @@
                             </div>
                             <div class="button-holder audio-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-audio" title="Get an audio challenge"
-                                    value="" id="recaptcha-audio-button" tabindex="1"></button>
+                                    value="" id="recaptcha-audio-button" tabindex="1" @click="tts(buildSpeech())"></button>
                             </div>
                             <div class="button-holder help-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-help" title="Help" value=""
@@ -77,7 +78,7 @@
                         </div>
                         <div class="verify-button-holder">
                             <button class="rc-button-default goog-inline-block" title="" value=""
-                                id="recaptcha-verify-button" tabindex="0" @click="checkEnd">
+                                id="recaptcha-verify-button" tabindex="0" @click="randomSelected.every(x => x == false) ? skipCurrentTest() : checkEnd()">
                                 {{ randomSelected.every(x => x == false) ? "SKIP" : "NEXT" }}
                             </button>
                         </div>
@@ -101,6 +102,8 @@ import _ from "lodash";
 
 import rawSupportedColor from "./colors";
 import ProgressBarVue from "./ProgressBar.vue";
+
+import { tts } from "@/utils";
 
 import { useGameProgressStore, SkipFailedTimes } from "../store/GameProgress";
 const GameProgress = useGameProgressStore();
@@ -179,6 +182,7 @@ const checkEnd = () => {
         if (randomSelected.every((val, index) => val == (imgSelect[index] == 0))) {
 
             clearTimeout(timeoutInstance);
+            GameProgress.finishedTimes ++;
 
             emits("next");
         } else {
@@ -230,6 +234,27 @@ onUnmounted(() => {
     console.log("unmount");
     clearTimeout(timeoutInstance);
 });
+
+
+const skipCurrentTest = () => {
+    GameProgress.skippedTimes++;
+    checkEnd();
+    emits("next");
+};
+
+
+const buildSpeech = () => {
+    let speech = "";
+
+    if (difficulty.value == 1)
+        speech = `Select all squares that are ${majorColor.value.name} within ${totalTime.value / 1000} seconds`;
+    else if (difficulty.value == 2)
+        speech = `Select all squares that are ${majorColor.value.color} within ${totalTime.value / 1000} seconds`;
+    else
+        speech = `Select all squares that are ${majorColor.value.color} within ${totalTime.value / 1000} seconds`;
+
+    return speech;
+};
 
 </script>
 

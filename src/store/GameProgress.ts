@@ -14,17 +14,19 @@ export const useGameProgressStore = defineStore("GameProgress", {
         return {
             currentIndex: StartIndex,
             skippedTimes: 0,
+            finishedTimes: 0,
         };
     },
     getters: {
         successRate: function(): string {
-            return (100 * (this.currentIndex + 1 - this.skippedTimes) / (this.currentIndex + 1)).toFixed(1);
+            return (100 * (this.finishedTimes) / (this.finishedTimes + this.skippedTimes)).toFixed(1);
         }
     },
     actions: {
         init: function() {
             this.currentIndex = StartIndex;
             this.skippedTimes = 0;
+            this.finishedTimes = 0;
         }
     }
 });

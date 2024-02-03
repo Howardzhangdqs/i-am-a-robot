@@ -27,7 +27,7 @@
                             <span v-if="failedTimes > SkipFailedTimes">
                                 Find it too hard? <button
                                     class="border border-gray-400 px-1 py-0 rounded text-gray-900 bg-gray-100"
-                                    @click="GameProgress.skippedTimes++; checkEnd(); $emit('next')">SKIP</button>
+                                    @click="skipCurrentTest">SKIP</button>
                             </span>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                             </div>
                             <div class="button-holder audio-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-audio" title="Get an audio challenge"
-                                    value="" id="recaptcha-audio-button" tabindex="1"></button>
+                                    value="" id="recaptcha-audio-button" tabindex="1" @click="tts(buildSpeech())"></button>
                             </div>
                             <div class="button-holder help-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-help" title="Help" value=""
@@ -53,7 +53,7 @@
                         </div>
                         <div class="verify-button-holder">
                             <button class="rc-button-default goog-inline-block" title="" value=""
-                                id="recaptcha-verify-button" tabindex="0" @click="checkEnd()">
+                                id="recaptcha-verify-button" tabindex="0" @click="moveStarted ? checkEnd() : skipCurrentTest()">
                                 {{ moveStarted ? "NEXT" : "SKIP" }}
                             </button>
                         </div>
@@ -70,12 +70,12 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch, type Ref } from "vue";
-import _ from "lodash";
 
 import ProgressBarVue from "./ProgressBar.vue";
 import { CanvasEventHandler } from "./canvasGame";
+import { tts } from "@/utils";
 
-import { useGameProgressStore, SkipFailedTimes } from "../store/GameProgress";
+import { useGameProgressStore, SkipFailedTimes } from "@/store/GameProgress";
 const GameProgress = useGameProgressStore();
 
 
@@ -109,10 +109,8 @@ const showError = ref(false);
 const canvas = ref<HTMLCanvasElement>();
 const canvasContainer = ref<HTMLDivElement>();
 const canvasWidth = ref(0);
-let ctx: CanvasRenderingContext2D;
 
 const moveStarted = ref(false);
-const moveEnd = ref(false);
 
 
 const setDifficulty = () => {
@@ -139,13 +137,17 @@ const init = () => {
 
     const myCanvas = canvas.value as HTMLCanvasElement;
 
-    myCanvas.removeEventListener("mousemove", CanvasEvents.CanvasMouseMoveEvent);
-    myCanvas.removeEventListener("mousedown", CanvasEvents.CanvasMouseDownEvent);
-    myCanvas.removeEventListener("mouseup", CanvasEvents.CanvasMouseUpEvent);
-    myCanvas.removeEventListener("touchmove", CanvasEvents.CanvasTouchMoveEvent);
-    myCanvas.removeEventListener("touchstart", CanvasEvents.CanvasTouchStartEvent);
-    myCanvas.removeEventListener("touchend", CanvasEvents.CanvasTouchEndEvent);
-    myCanvas.removeEventListener("mouseout", CanvasEvents.CanvasMouseUpEvent);
+    try {
+        myCanvas.removeEventListener("mousemove", CanvasEvents.CanvasMouseMoveEvent);
+        myCanvas.removeEventListener("mousedown", CanvasEvents.CanvasMouseDownEvent);
+        myCanvas.removeEventListener("mouseup", CanvasEvents.CanvasMouseUpEvent);
+        myCanvas.removeEventListener("touchmove", CanvasEvents.CanvasTouchMoveEvent);
+        myCanvas.removeEventListener("touchstart", CanvasEvents.CanvasTouchStartEvent);
+        myCanvas.removeEventListener("touchend", CanvasEvents.CanvasTouchEndEvent);
+        myCanvas.removeEventListener("mouseout", CanvasEvents.CanvasMouseUpEvent);
+    } catch {
+        // Empty block statement.
+    }
 
     CanvasEvents.init();
 
@@ -156,11 +158,6 @@ const init = () => {
     myCanvas.addEventListener("touchstart", CanvasEvents.CanvasTouchStartEvent);
     myCanvas.addEventListener("touchend", CanvasEvents.CanvasTouchEndEvent);
     myCanvas.addEventListener("mouseout", CanvasEvents.CanvasMouseUpEvent);
-
-
-    // ctx全涂满红色
-    // ctx.fillStyle = "#ddd";
-    // ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);
 
 
     progressbarDisplay.value = false;
@@ -176,6 +173,7 @@ const checkEnd = (isEnd: boolean = false) => {
     nextTick(() => {
 
         if (isEnd) {
+            GameProgress.finishedTimes ++;
             emits("next");
         } else {
             showError.value = true;
@@ -193,8 +191,6 @@ let timeoutInstance = 0;
 const progress = () => {
     clearTimeout(timeoutInstance);
 
-    // console.log(route.path);
-
     progressbarDisplay.value = true;
 
     timeoutInstance = setTimeout(() => {
@@ -210,8 +206,6 @@ onMounted(() => {
 
 
     CanvasEvents = CanvasEventHandler(canvas as Ref<HTMLCanvasElement>, difficulty, init, checkEnd);
-
-    ctx = (canvas.value as HTMLCanvasElement).getContext("2d") as CanvasRenderingContext2D;
     nextTick(init);
 });
 
@@ -219,6 +213,17 @@ onUnmounted(() => {
     console.log("unmount");
     clearTimeout(timeoutInstance);
 });
+
+const buildSpeech = () => {
+    return `Place your mouse on the red square and drag to the green square. Do not exceed the yellow area while moving. within ${totalTime.value / 1000} seconds`;
+};
+
+
+const skipCurrentTest = () => {
+    GameProgress.skippedTimes++;
+    checkEnd();
+    emits("next");
+};
 
 </script>
 

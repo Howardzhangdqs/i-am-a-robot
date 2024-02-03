@@ -57,7 +57,6 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import TestEntry from "./TestEntry.vue";
 import party from "party-js";
 
 import { useGameProgressStore } from "@/store/GameProgress";
@@ -75,10 +74,6 @@ onMounted(() => {
         size: party.variation.range(0.8, 2),
     });
 });
-
-const retest = () => {
-    window.location.reload();
-};
 </script>
 
 <style scoped>

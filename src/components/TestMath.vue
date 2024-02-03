@@ -45,7 +45,7 @@
                             </div>
                             <div class="button-holder audio-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-audio" title="Get an audio challenge"
-                                    value="" id="recaptcha-audio-button" tabindex="1"></button>
+                                    value="" id="recaptcha-audio-button" tabindex="1" @click="tts(buildSpeech())"></button>
                             </div>
                             <div class="button-holder help-button-holder">
                                 <button class="rc-button goog-inline-block rc-button-help" title="Help" value=""
@@ -54,7 +54,7 @@
                         </div>
                         <div class="verify-button-holder">
                             <button class="rc-button-default goog-inline-block" title="" value=""
-                                id="recaptcha-verify-button" tabindex="0" @click="checkEnd">
+                                id="recaptcha-verify-button" tabindex="0" @click="answerContent ? checkEnd() : skipCurrentTest()">
                                 {{ answerContent ? "NEXT" : "SKIP" }}
                             </button>
                         </div>
@@ -76,6 +76,8 @@ import _ from "lodash";
 
 import generateMath from "./generateMath";
 import ProgressBarVue from "./ProgressBar.vue";
+
+import { tts } from "@/utils";
 
 import { useGameProgressStore, SkipFailedTimes } from "../store/GameProgress";
 const GameProgress = useGameProgressStore();
@@ -148,6 +150,7 @@ const checkEnd = () => {
         if (realAnswer.value == answerContent.value) {
 
             clearTimeout(timeoutInstance);
+            GameProgress.finishedTimes ++;
 
             emits("next");
         } else {
@@ -216,6 +219,17 @@ onUnmounted(() => {
     console.log("unmount");
     clearTimeout(timeoutInstance);
 });
+
+const buildSpeech = () => {
+    return `Solve this math problem within ${totalTime.value / 1000} seconds. Input your answer below. Accurate to ${accuracy.value} decimal place.`;
+};
+
+
+const skipCurrentTest = () => {
+    GameProgress.skippedTimes++;
+    checkEnd();
+    emits("next");
+};
 
 </script>
 
